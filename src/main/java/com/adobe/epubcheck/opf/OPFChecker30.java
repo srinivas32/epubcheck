@@ -190,7 +190,7 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator
       String mo = item.getMediaOverlay();
       String docpath = item.getPath();
       if (OverlayTextRefs.isReferencedByOverlay(docpath)) {
-        if (mo == null || mo.equals("")) {
+        if (Strings.isNullOrEmpty(mo)) {
           // missing media-overlay attribute
           report.message(MessageId.MED_010, EPUBLocation.create(path, item.getLineNumber(), item.getColumnNumber(), item.getPath()));
         }
@@ -200,7 +200,7 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator
         }
       }
       else {
-        if (mo != null && !mo.equals("")) {
+        if (!Strings.isNullOrEmpty(mo)) {
           // referenced overlay does not reference this content document
           report.message(MessageId.MED_013, EPUBLocation.create(path, item.getLineNumber(), item.getColumnNumber(), item.getPath()));
         }
