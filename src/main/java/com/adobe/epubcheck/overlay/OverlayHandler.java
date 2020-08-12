@@ -19,6 +19,7 @@ import com.adobe.epubcheck.vocab.VocabUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
 import com.adobe.epubcheck.xml.XMLParser;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -112,8 +113,8 @@ public class OverlayHandler implements XMLHandler
         }
       }
       else {
-        String uniqueResource = getUniqueResource(ref);
-        if (!uniqueResource.equals("")) {
+        String uniqueResource = PathUtil.removeFragment(ref);
+        if (!Strings.isNullOrEmpty(uniqueResource)) {
           if (!OverlayTextRefs.setOverlayTextRef(uniqueResource, context.opfItem.get().getId())) {
               report.message(MessageId.MED_011, EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()), ref);
           }
@@ -122,22 +123,6 @@ public class OverlayHandler implements XMLHandler
       context.xrefChecker.get().registerReference(path, parser.getLineNumber(),
           parser.getColumnNumber(), ref, type);
     }
-  }
-  
-  private String getUniqueResource(String src) {
-    int frag_start;
-    
-    if (src.indexOf("?") > 0) {
-      // shouldn't be a query string in a text reference but handling anyway
-      frag_start = src.indexOf("?");
-    }
-    else if (src.indexOf("#") > 0) {
-      frag_start = src.indexOf("#");
-	}
-    else {
-      frag_start = src.length();
-    }
-    return src.substring(0, frag_start);
   }
 
   private void processSeq(XMLElement e)
