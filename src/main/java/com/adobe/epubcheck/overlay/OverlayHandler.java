@@ -18,6 +18,7 @@ import com.adobe.epubcheck.vocab.VocabUtil;
 import com.adobe.epubcheck.xml.XMLElement;
 import com.adobe.epubcheck.xml.XMLHandler;
 import com.adobe.epubcheck.xml.XMLParser;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
@@ -58,28 +59,27 @@ public class OverlayHandler implements XMLHandler
     XMLElement e = parser.getCurrentElement();
     String name = e.getName();
 
-    if (name.equals("smil"))
-    {
-      vocabs = VocabUtil.parsePrefixDeclaration(
-          e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "prefix"), RESERVED_VOCABS,
-          KNOWN_VOCAB_URIS, DEFAULT_VOCAB_URIS, report,
-          EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
-    }
-    else if (name.equals("seq"))
-    {
-      processSeq(e);
-    }
-    else if (name.equals("text"))
-    {
-      processSrc(e);
-    }
-    else if (name.equals("audio"))
-    {
-      processRef(e.getAttribute("src"), XRefChecker.Type.AUDIO);
-    }
-    else if (name.equals("body") || name.equals("par"))
-    {
-      checkType(e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "type"));
+    switch (name) {
+      case "smil":
+        vocabs = VocabUtil.parsePrefixDeclaration(
+            e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "prefix"), RESERVED_VOCABS,
+            KNOWN_VOCAB_URIS, DEFAULT_VOCAB_URIS, report,
+            EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
+        break;
+        
+      case "body":
+      case "seq":
+      case "par":
+        processGlobalAttrs(e);
+        break;
+       
+      case "text":
+        processSrc(e);
+        break;
+      
+      case "audio":
+        processRef(e.getAttribute("src"), XRefChecker.Type.AUDIO);
+        break;
     }
   }
 
@@ -108,15 +108,20 @@ public class OverlayHandler implements XMLHandler
           report.message(MessageId.MED_005, EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()), ref, mimeType);
         }
       }
+      else {
+        checkFragment(ref);
+      }
       context.xrefChecker.get().registerReference(path, parser.getLineNumber(),
           parser.getColumnNumber(), ref, type);
     }
   }
 
-  private void processSeq(XMLElement e)
+  private void processGlobalAttrs(XMLElement e)
   {
-    processRef(e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "textref"),
-        XRefChecker.Type.HYPERLINK);
+    if (!e.getName().equals("audio")) {
+      processRef(e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "textref"),
+          XRefChecker.Type.HYPERLINK);
+    }
     checkType(e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "type"));
   }
 
@@ -135,5 +140,20 @@ public class OverlayHandler implements XMLHandler
   public void processingInstruction(String arg0, String arg1)
   {
   }
-
+  
+  private void checkFragment(String ref) {
+  
+    if (ref.indexOf("#") == -1) {
+      // must include a fragid
+      report.message(MessageId.MED_014, EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
+    }
+    
+    else {
+      String frag = PathUtil.getFragment(ref.trim());
+      if (Strings.isNullOrEmpty(frag)) {
+        // empty fragid # not allowed
+        report.message(MessageId.MED_015, EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
+      }
+    }
+  }
 }

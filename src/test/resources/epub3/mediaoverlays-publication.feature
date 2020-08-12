@@ -22,7 +22,14 @@ Feature: EPUB 3 ▸ Media Overlays ▸ Full Publication Checks
 
   ## 2. Media Overlay Document Definition
 
-  ### The audio Element
+  Scenario: Report invalid fragment identifiers on body, seq, and text elements
+    When checking EPUB 'mediaoverlays-invalid-fragid-error'
+    Then error MED-014 is reported
+    And error MED-015 is reported
+    And error RSC-012 is reported
+    And no other errors or warnings are reported
+
+  ### 2.4.8 The audio Element
 
   Scenario: Report an audio clip that is not a Core Media Type
     When checking EPUB 'mediaoverlays-audio-non-cmt-error'
