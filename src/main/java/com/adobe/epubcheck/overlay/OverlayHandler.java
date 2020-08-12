@@ -65,29 +65,31 @@ public class OverlayHandler implements XMLHandler
     XMLElement e = parser.getCurrentElement();
     String name = e.getName();
 
-    if (name.equals("smil"))
-    {
-      vocabs = VocabUtil.parsePrefixDeclaration(
-          e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "prefix"), RESERVED_VOCABS,
-          KNOWN_VOCAB_URIS, DEFAULT_VOCAB_URIS, report,
-          EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
-    }
-    else if (name.equals("seq"))
-    {
-      processSeq(e);
-    }
-    else if (name.equals("text"))
-    {
-      processSrc(e);
-    }
-    else if (name.equals("audio"))
-    {
-      processRef(e.getAttribute("src"), XRefChecker.Type.AUDIO);
-      processAudioSrc(e);
-    }
-    else if (name.equals("body") || name.equals("par"))
-    {
-      checkType(e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "type"));
+    switch (name) {
+      case "seq":
+        processSeq(e);
+        break;
+      
+      case "smil":
+        vocabs = VocabUtil.parsePrefixDeclaration(
+            e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "prefix"), RESERVED_VOCABS,
+            KNOWN_VOCAB_URIS, DEFAULT_VOCAB_URIS, report,
+            EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
+        break;
+       
+      case "text":
+        processSrc(e);
+        break;
+      
+      case "audio":
+        processRef(e.getAttribute("src"), XRefChecker.Type.AUDIO);
+        processAudioSrc(e);
+        break;
+        
+      case "body":
+      case "par":
+        checkType(e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "type"));
+        break;
     }
   }
 
