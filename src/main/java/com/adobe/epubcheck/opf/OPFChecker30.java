@@ -40,7 +40,7 @@ import com.adobe.epubcheck.opf.MetadataSet.Metadata;
 import com.adobe.epubcheck.opf.ResourceCollection.Roles;
 import com.adobe.epubcheck.ops.OPSCheckerFactory;
 import com.adobe.epubcheck.overlay.OverlayCheckerFactory;
-import com.adobe.epubcheck.overlay.OverlayTextRefs;
+import com.adobe.epubcheck.overlay.OverlayTextChecker;
 import com.adobe.epubcheck.util.EPUBVersion;
 import com.adobe.epubcheck.util.FeatureEnum;
 import com.adobe.epubcheck.util.PathUtil;
@@ -75,7 +75,6 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator
     map.put("text/css", CSSCheckerFactory.getInstance());
     contentCheckerFactoryMap.clear();
     contentCheckerFactoryMap.putAll(map);
-    OverlayTextRefs.clear();
   }
 
   @Override
@@ -187,14 +186,15 @@ public class OPFChecker30 extends OPFChecker implements DocumentValidator
     
     if (isBlessedItemType(mediatype, version)) {
       // check whether media-overlay attribute needs to be specified
+      OverlayTextChecker overlayTextChecker = context.overlayTextChecker.get();
       String mo = item.getMediaOverlay();
       String docpath = item.getPath();
-      if (OverlayTextRefs.isReferencedByOverlay(docpath)) {
+      if (overlayTextChecker.isReferencedByOverlay(docpath)) {
         if (Strings.isNullOrEmpty(mo)) {
           // missing media-overlay attribute
           report.message(MessageId.MED_010, EPUBLocation.create(path, item.getLineNumber(), item.getColumnNumber(), item.getPath()));
         }
-        else if (!OverlayTextRefs.isCorrectOverlay(docpath,mo)) {
+        else if (!overlayTextChecker.isCorrectOverlay(docpath,mo)) {
           // media-overlay attribute references the wrong media overlay
           report.message(MessageId.MED_012, EPUBLocation.create(path, item.getLineNumber(), item.getColumnNumber(), item.getPath()));
         }

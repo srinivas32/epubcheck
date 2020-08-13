@@ -115,7 +115,7 @@ public class OverlayHandler implements XMLHandler
       else {
         String uniqueResource = PathUtil.removeFragment(ref);
         if (!Strings.isNullOrEmpty(uniqueResource)) {
-          if (!OverlayTextRefs.setOverlayTextRef(uniqueResource, context.opfItem.get().getId())) {
+          if (!context.overlayTextChecker.get().add(uniqueResource, context.opfItem.get().getId())) {
               report.message(MessageId.MED_011, EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()), ref);
           }
         }
