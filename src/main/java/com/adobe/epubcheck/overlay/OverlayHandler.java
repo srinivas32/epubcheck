@@ -87,10 +87,14 @@ public class OverlayHandler implements XMLHandler
   
   private void checkTime(String clipBegin, String clipEnd) {
   
-    if (clipBegin == null || clipEnd == null) {
-      // missing clipBegin attribute will be reported invalid by the schema
-      // missing clipEnd attribute means clip plays to end so no comparisons needed
+    if (clipEnd == null) {
+      // missing clipEnd attribute means clip plays to end so no comparisons possible
       return;
+    }
+    
+    if (clipBegin == null) {
+      // set clipBegin to 0 if the attribute isn't set to allow comparisons
+      clipBegin = "0";
     }
     
     SmilClock start;

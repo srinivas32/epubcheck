@@ -82,7 +82,7 @@ Feature: EPUB 3 ▸ Media Overlays ▸ SMIL Document Checks
 
   Scenario: Report if the `clipEnd` value equals the `clipBegin` value
     When checking document 'clip-times-equal-error.smil'
-    Then error MED-009 is reported 3 times
+    Then error MED-009 is reported 4 times
     And no other errors or warnings are reported
 
  ## 3.3 Semantic Inflection
