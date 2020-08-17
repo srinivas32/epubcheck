@@ -553,7 +553,7 @@ public class XRefChecker
           "spine");
       
       if (ref.type == Type.OVERLAY_TEXT_LINK) {
-        report.message(MessageId.MED_016,
+        report.message(MessageId.MED_015,
                 EPUBLocation.create(ref.source, ref.lineNumber, ref.columnNumber), ref.value, orderContext);
       }
       else {
@@ -583,7 +583,7 @@ public class XRefChecker
         String orderContext = LocalizedMessages.getInstance(locale).getSuggestion(MessageId.NAV_011,
             "document");
         if (ref.type == Type.OVERLAY_TEXT_LINK) {
-            report.message(MessageId.MED_016,
+            report.message(MessageId.MED_015,
                     EPUBLocation.create(ref.source, ref.lineNumber, ref.columnNumber), ref.value, orderContext);
         }
         else {
