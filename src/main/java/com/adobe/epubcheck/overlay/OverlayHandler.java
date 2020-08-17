@@ -66,26 +66,26 @@ public class OverlayHandler implements XMLHandler
     String name = e.getName();
 
     switch (name) {
-      case "seq":
-        processSeq(e);
-        break;
-      
       case "smil":
         vocabs = VocabUtil.parsePrefixDeclaration(
             e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "prefix"), RESERVED_VOCABS,
             KNOWN_VOCAB_URIS, DEFAULT_VOCAB_URIS, report,
             EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
         break;
-       
+    
+      case "seq":
+        processSeq(e);
+        break;
+    
       case "text":
         processSrc(e);
         break;
-      
+    
       case "audio":
         processRef(e.getAttribute("src"), XRefChecker.Type.AUDIO);
         processAudioSrc(e);
         break;
-        
+    
       case "body":
       case "par":
         checkType(e.getAttributeNS(EpubConstants.EpubTypeNamespaceUri, "type"));
@@ -101,15 +101,22 @@ public class OverlayHandler implements XMLHandler
 
   private void processSrc(XMLElement e)
   {
-    processRef(e.getAttribute("src"), XRefChecker.Type.HYPERLINK);
-  }
-  
-  private void processAudioSrc(XMLElement e) {
-      String src = e.getAttribute("src");
-      if (src != null && PathUtil.isRemote(src))
-      {
-        requiredProperties.add(ITEM_PROPERTIES.REMOTE_RESOURCES);
-      }
+    String src = e.getAttribute("src");
+    
+    processRef(src, XRefChecker.Type.HYPERLINK);
+    
+    if (src != null && PathUtil.isRemote(src))
+    {
+      requiredProperties.add(ITEM_PROPERTIES.REMOTE_RESOURCES);
+    }
+    
+    String resolvedSrc = PathUtil.resolveRelativeReference(path, src);
+    
+    if (context.xrefChecker.isPresent())
+    {
+      context.xrefChecker.get().registerReference(path, parser.getLineNumber(),
+          parser.getColumnNumber(), resolvedSrc, XRefChecker.Type.OVERLAY_TEXT_LINK);
+    }
   }
 
   private void processRef(String ref, XRefChecker.Type type)
