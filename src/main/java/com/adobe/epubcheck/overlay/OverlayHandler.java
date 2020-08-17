@@ -143,17 +143,11 @@ public class OverlayHandler implements XMLHandler
   
   private void checkFragment(String ref) {
   
-    if (ref.indexOf("#") == -1) {
-      // must include a fragid
-      report.message(MessageId.MED_014, EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
-    }
+    String frag = PathUtil.getFragment(ref.trim());
     
-    else {
-      String frag = PathUtil.getFragment(ref.trim());
-      if (Strings.isNullOrEmpty(frag)) {
-        // empty fragid # not allowed
-        report.message(MessageId.MED_015, EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
-      }
+    if (ref.indexOf("#") == -1 || Strings.isNullOrEmpty(frag)) {
+      // must include a non-empty fragid
+      report.message(MessageId.MED_014, EPUBLocation.create(path, parser.getLineNumber(), parser.getColumnNumber()));
     }
   }
 }

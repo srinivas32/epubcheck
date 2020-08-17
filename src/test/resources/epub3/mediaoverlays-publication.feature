@@ -22,11 +22,14 @@ Feature: EPUB 3 ▸ Media Overlays ▸ Full Publication Checks
 
   ## 2. Media Overlay Document Definition
 
-  Scenario: Report invalid fragment identifiers on body, seq, and text elements
-    When checking EPUB 'mediaoverlays-invalid-fragid-error'
-    Then error MED-014 is reported
-    And error MED-015 is reported
-    And error RSC-012 is reported
+  Scenario: Report empty fragment identifiers
+    When checking EPUB 'mediaoverlays-fragid-invalid-error'
+    Then error MED-014 is reported 2 times
+    And no other errors or warnings are reported
+
+  Scenario: Report a fragment identifier that does not resolve to an element
+    When checking EPUB 'mediaoverlays-fragid-resolve-error'
+    Then error RSC-012 is reported
     And no other errors or warnings are reported
 
   ### 2.4.8 The audio Element
