@@ -105,17 +105,22 @@ public class OverlayHandler implements XMLHandler
     
     processRef(src, XRefChecker.Type.HYPERLINK);
     
-    if (src != null && PathUtil.isRemote(src))
-    {
-      requiredProperties.add(ITEM_PROPERTIES.REMOTE_RESOURCES);
-    }
-    
     String resolvedSrc = PathUtil.resolveRelativeReference(path, src);
     
     if (context.xrefChecker.isPresent())
     {
       context.xrefChecker.get().registerReference(path, parser.getLineNumber(),
           parser.getColumnNumber(), resolvedSrc, XRefChecker.Type.OVERLAY_TEXT_LINK);
+    }
+  }
+
+  private void processAudioSrc(XMLElement e) {
+    
+    String src = e.getAttribute("src");
+    
+    if (src != null && PathUtil.isRemote(src))
+    {
+      requiredProperties.add(ITEM_PROPERTIES.REMOTE_RESOURCES);
     }
   }
 
